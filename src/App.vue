@@ -1,50 +1,61 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:24
- * @LastEditTime: 2021-07-15 17:39:32
+ * @LastEditTime: 2021-07-15 19:00:37
  * @FilePath: \vue3-typescript\src\App.vue
  * @Description: 
 -->
 <template>
-  <h2>App</h2>
-  <p>m1: {{m1}}</p>
-  <p>m2: {{m2}}</p>
-  <p>m3: {{m3}}</p>
-  <button @click="update">更新</button>
+  <fieldset>
+    <legend>姓名</legend>姓氏：
+    <input type="text" v-model="user.firstName" />
+    <br />名字：
+    <input type="text" v-model="user.lastName" />
+    <br />
+  </fieldset>
+  <fieldset>
+    <legend>计算属性和监视的演示</legend>姓名：
+    <input type="text" v-model="fullName1" />
+    <br />姓名：
+    <input type="text" v-model="fullName2" />
+    <br />姓名：
+    <input type="text" />
+    <br />
+  </fieldset>
 </template>
-
 <script lang="ts">
-import { reactive, ref } from "vue";
-
-export default {
+import { defineComponent, reactive, computed } from "vue";
+export default defineComponent({
+  name: "App",
   setup() {
-    const m1 = ref("abc");
-    const m2 = reactive({ x: 1, y: { z: "abc" } });
+    const user = reactive({
+      firstName: "东方",
+      lastName: "不败"
+    });
 
-    // 使用ref处理对象  ==> 对象会被自动reactive为proxy对象
-    const m3 = ref({ a1: 2, a2: { a3: "abc" } });
-    console.log(m1, m2, m3);
-    console.log(m3.value.a2); // 也是一个proxy对象
+    // 只有getter的计算属性
+    const fullName1 = computed(() => {
+      return user.firstName + "_" + user.lastName;
+    });
 
-    function update() {
-      m1.value += "--";
-      m2.x += 1;
-      m2.y.z += "++";
-
-      m3.value = { a1: 3, a2: { a3: "abc---" } };
-      m3.value.a2.a3 += "=="; // reactive对对象进行了深度数据劫持
-      console.log(m3.value.a2);
-    }
-
+    // 有getter与setter的计算属性
+    const fullName2 = computed({
+      get() {
+        return user.firstName + "_" + user.lastName;
+      },
+      set(val: string) {
+        const names = val.split("_");
+        user.firstName = names[0];
+        user.lastName = names[1];
+      }
+    });
     return {
-      m1,
-      m2,
-      m3,
-      update
+      user,
+      fullName1,
+      fullName2
     };
   }
-};
+});
 </script>
-
-<style>
+<style scoped>
 </style>
