@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-16 18:07:13
+ * @LastEditTime: 2021-07-16 19:09:19
  * @FilePath: \vue3-typescript\README.md
  * @Description:
 -->
@@ -928,4 +928,46 @@
    }
    });
    </script>
+   ```
+
+4. toRef
+   - 为源响应式对象上的某个属性创建一个 ref 对象，二者内部操作的是同一个数据值，更新时两者是同步的
+   - 区别 ref：拷贝了一份新的数据值单独操作，更新时互相不影响
+   - 应用：当要将某个 prop 的 ref 传递给复合函数时， toRef 特别有用
+   ```ts
+   <template>
+   <h2>Child子级组件</h2>
+   <h3>age:{{ age }}</h3>
+   <h3>money:{{ money }}</h3>
+   <h3>length:{{ length }}</h3>
+   </template>
+   <script lang="ts">
+   import { defineComponent, Ref, computed, toRef } from "vue";
+   function useGetLength(age: Ref) {
+   return computed(() => {
+       return age.value.toString().length;
+   });
+   }
+   export default defineComponent({
+   name: "Child",
+   components: {},
+   props: {
+       age: {
+       type: Number,
+       required: true // 必须传
+       },
+       money: {
+       type: Number,
+       required: true
+       }
+   },
+   setup(props) {
+       const length = useGetLength(toRef(props, "age"));
+       return {
+       length
+       };
+   }
+   });
+   </script>
+   <style scoped></style>
    ```
