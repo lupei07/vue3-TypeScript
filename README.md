@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-16 17:30:04
+ * @LastEditTime: 2021-07-16 18:07:13
  * @FilePath: \vue3-typescript\README.md
  * @Description:
 -->
@@ -866,6 +866,65 @@
        state2,
        update
        };
+   }
+   });
+   </script>
+   ```
+
+3. toRaw 与 markRaw
+
+   - toRaw
+     - 返回由 `reactive` 或 `radonly` 方法转换成响应式代理的普通对象
+     - 这是一个还原方法，可用于临时读取，访问不会被代理/跟踪，写入时也不会触发界面更新
+   - markRaw
+     - 标记个对象，使其永远不会转换为代理，返回对象本身
+     - 应用场景：
+       - 有些值不应该被设置为响应式的，例如复制的第三方类实例或 Vue 组件对象
+       - 当渲染具有不可变数据源的大列表时，跳过代理转换可以提高性能
+
+   ```ts
+   <template>
+   <h2>toRaw和markRaw</h2>
+   <h3>{{ state }}</h3>
+   <hr />
+   <button @click="testToRaw">toRaw</button>
+   <button @click="testMarkRaw">markRaw</button>
+   </template>
+   <script lang="ts">
+   import { defineComponent, reactive, toRaw, markRaw } from "vue";
+
+   interface UserInfo {
+   name: string;
+   age: number;
+   likes?: string[];
+   }
+   export default defineComponent({
+   name: "App",
+   components: {},
+   setup() {
+       const state = reactive<UserInfo>({
+       name: "阿隼",
+       age: 20
+       });
+       const testToRaw = () => {
+       // 把代理对象编程了普通对象了，数据变化，界面不变化
+       const user = toRaw(state);
+       user.name = "阿诗勒隼"; // 界面没有发生变化
+       };
+       const testMarkRaw = () => {
+       const likes = ["长歌", "长歌"];
+       // state.likes = likes; // 改变
+       // state.likes[0] = "长歌歌"; // 改变
+
+       // markRaw 标记的对象数据，从此以后都不能再成为代理对象了
+       state.likes = markRaw(likes);
+       setTimeout(() => {
+           if (state.likes) {
+           state.likes[0] = "长歌歌"; // 不改变
+           }
+       }, 1000);
+       };
+       return { state, testToRaw, testMarkRaw };
    }
    });
    </script>
