@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-16 14:26:18
+ * @LastEditTime: 2021-07-16 14:40:46
  * @FilePath: \vue3-typescript\README.md
  * @Description: 
 -->
@@ -656,5 +656,36 @@
     ```
 
 11. ref获取元素
+    - 利用ref函数获取组件中的标签元素
+    - 功能需求：让输入框自动获取焦点
+    ```ts
+    <template>
+    <h2>ref的另一个作用：可以获取页面中的元素</h2>
+    <input type="text" ref="inputRef" />
+    </template>
+    <script lang="ts">
+    import { defineComponent, ref, onMounted } from "vue";
+    export default defineComponent({
+    name: "App",
+    components: {},
+    setup() {
+        // 需求：当页面加载完毕后，页面中的文本框可以自动获取焦点
 
+        // 默认是空的，页面加载完毕，说明组件已经存在
+        const inputRef = ref<HTMLElement | null>(null);
+
+        //   页面加载后的生命周期组合API
+        onMounted(() => {
+        inputRef.value && inputRef.value.focus(); // 自动获取焦点
+        });
+
+        return {
+        inputRef
+        };
+    }
+    });
+    </script>
+    ```
+
+## Composition API（其它部分）
 
