@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-16 16:26:17
+ * @LastEditTime: 2021-07-16 16:48:49
  * @FilePath: \vue3-typescript\README.md
  * @Description: 
 -->
@@ -717,6 +717,7 @@
     name: "App",
     components: {},
     setup() {
+        // 深度劫持（深监视） ---- 深度响应式
         const m1 = reactive({
         name: "热巴",
         age: 28,
@@ -725,6 +726,7 @@
             color: "red"
         }
         });
+        // 浅劫持（浅监视） ---- 浅响应式
         const m2 = shallowReactive({
         name: "热巴",
         age: 28,
@@ -733,6 +735,7 @@
             color: "red"
         }
         });
+        // 深度劫持（深监视） ---- 深度响应式 ---- 做了reactive处理
         const m3 = ref({
         name: "热巴",
         age: 28,
@@ -741,6 +744,7 @@
             color: "red"
         }
         });
+        // 浅劫持（浅监视） ---- 浅响应式
         const m4 = shallowRef({
         name: "热巴",
         age: 28,
@@ -770,3 +774,8 @@
     });
     </script>
     ```
+
+2. 
+
+
+
