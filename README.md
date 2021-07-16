@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-15 17:56:12
+ * @LastEditTime: 2021-07-16 13:55:23
  * @FilePath: \vue3-typescript\README.md
  * @Description: 
 -->
@@ -383,7 +383,199 @@
     - `watch`函数：
     - `watchEffect`函数
 
+ 8. 生命周期
+    - 与 2.x 版本生命周期对应的组合式 API
+     - `beforeCreate` -> 使用 `setup()`
+     - `created` -> 使用 `setup()`
+     - `beforeMount` -> 使用 `onBeforeMount`
+     - `mounted` -> 使用 `onMounted`
+     - `beforeUpdate` -> 使用 `onBeforeUpdate`
+     - `updated` -> 使用 `onUpdated`
+     - `beforeDestroy` -> 使用 `onBeforeUnmount`
+     - `destroyed` -> 使用 `onUnmounted`
+     - `errorCaptured` -> 使用 `onErrorCapture`
+
+9. 自定义 hook 函数
+    - 使用Vue3的组合API封装的可复用的功能函数
+    - 自定义hook的作用类似于vue2中的mixin技术
+    - 自定义 Hook 的优势：很清楚复用功能代码的来源，更清楚易懂
+    - 需求1：收集用户鼠标垫底的 页面坐标
+    - `App.vue`
+    ```ts
+    <template>
+        <h2>收集用户鼠标点击的页面坐标</h2>
+        <h3>x:{{x}} y:{{y}}</h3>
+    </template>
+    <script lang="ts">
+        import { defineComponent } from "vue";
+        import useMousePosition from "./hooks/useMousePosition";
+        export default defineComponent({
+        name: "App",
+        components: {},
+        setup() {
+            const { x, y } = useMousePosition();
+            // const x = ref(-1);
+            // const y = ref(-1);
+
+            // // 点击事件的回调函数
+            // const clickHandler = (event: MouseEvent) => {
+            //   x.value = event.pageX;
+            //   y.value = event.pageY;
+            // };
+
+            // // 页面已经加载完毕了，再进行点击的操作
+            // onMounted(() => {
+            //   window.addEventListener("click", clickHandler);
+            // });
+            // // 页面卸载之前的生命周期组合API
+            // onBeforeUnmount(() => {
+            //   window.removeEventListener("click", clickHandler);
+            // });
+
+            return {
+            x,
+            y
+            };
+        }
+    });
+    </script>
+    ```
+    - `hooks/useMousePosition.ts`
+    ```ts
+    import { ref, onMounted, onBeforeUnmount } from "vue";
+    export default function () {
+        const x = ref(-1);
+        const y = ref(-1);
+
+        // 点击事件的回调函数
+        const clickHandler = (event: MouseEvent) => {
+            x.value = event.pageX;
+            y.value = event.pageY;
+        };
+
+        // 页面已经加载完毕了，再进行点击的操作
+        onMounted(() => {
+            window.addEventListener("click", clickHandler);
+        });
+        // 页面卸载之前的生命周期组合API
+        onBeforeUnmount(() => {
+            window.removeEventListener("click", clickHandler);
+        });
+        return {
+            x, y
+        }
+    }
+
+    ```
+
+    - 利用TS泛型强化类型检查
+    - 需求2：封装发ajax请求的hook函数
+    - hooks/useRequest
+    ```ts
+    import axios from 'axios'
+    import { ref } from 'vue'
+
+    export default function useUrlLoader<T>(url: string) {
+        // cosnt data = ref(null) // 坑
+        const data = ref<T | null>(null); // 可能是数组也可能是对象
+        const loading = ref(true);
+        const errorMsg = ref(null);
+
+        axios.get(url).then((response) => {
+            loading.value = false;
+            data.value = response.data
+        }).catch(e => {
+            loading.value = false;
+            errorMsg.value = e.message || '未知错误'
+
+        })
 
 
+        return {
+            data,
+            loading,
+            errorMsg
+        }
+    }
+    ```
+    ```ts
+    <template>
+    <h2>收集用户鼠标点击的页面坐标</h2>
+    <h3>x:{{x}} y:{{y}}</h3>
+    <hr />
+    <h3 v-if="loading">加载中。。。</h3>
+    <h3 v-else-if="errorMsg">错误信息：{{errorMsg}}</h3>
+    <ul v-else>
+        <li>{{data.name}}</li>
+        <li>{{data.address}}</li>
+        <li>{{data.age}}</li>
+    </ul>
+    <hr />
+    <ul v-for="item in data" :key="item.id">
+        <li>{{item.id}}</li>
+        <li>{{item.title}}</li>
+        <li>{{item.price}}</li>
+    </ul>
+    </template>
+    <script lang="ts">
+    import { defineComponent, watch } from "vue";
+    import useMousePosition from "./hooks/useMousePosition";
+    import useRequest from "./hooks/useRequest";
 
+    // 定义接口，约束对象的类型
+    interface IAddressData {
+    name: string;
+    address: string;
+    age: number;
+    }
+    interface IProductsData {
+    id: number;
+    title: string;
+    price: number;
+    }
+
+    export default defineComponent({
+    name: "App",
+    components: {},
+    setup() {
+        const { x, y } = useMousePosition();
+        // const x = ref(-1);
+        // const y = ref(-1);
+
+        // // 点击事件的回调函数
+        // const clickHandler = (event: MouseEvent) => {
+        //   x.value = event.pageX;
+        //   y.value = event.pageY;
+        // };
+
+        // // 页面已经加载完毕了，再进行点击的操作
+        // onMounted(() => {
+        //   window.addEventListener("click", clickHandler);
+        // });
+        // // 页面卸载之前的生命周期组合API
+        // onBeforeUnmount(() => {
+        //   window.removeEventListener("click", clickHandler);
+        // });
+
+        // const { loading, errorMsg, data } = useRequest<IAddressData>("/data/address.json"); // 对象
+        const { loading, errorMsg, data } = useRequest<IProductsData[]>(
+        "/data/products.json"
+        ); // 数组
+
+        watch(data, () => {
+        if (data.value) {
+            console.log(data.value.length); // 如果没有泛型定义  飘红
+        }
+        });
+        return {
+        x,
+        y,
+        data,
+        loading,
+        errorMsg
+        };
+    }
+    });
+    </script>
+    ```
 
