@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-19 17:54:17
+ * @LastEditTime: 2021-07-19 19:48:55
  * @FilePath: \vue3-TypeScript\README.md
  * @Description:
 -->
@@ -1496,3 +1496,14 @@ export default {
 }
 </script>
 ```
+
+## 面试相关
+
+- 2020 年 9 月发布的正式版
+- Vue3 支持大多数的 Vue2 的特性
+- Vue 中设计了一套强大的组合 API 代替了 Vue2 中的 option API，复用性更强了
+- 更好的支持 TS
+- 最主要：Vue3 中使用 `Proxy` 和 `Reflect` 代替了 Vue2 中 `Object.defineProperty()`方法实现数据的响应式（数据代理）
+- 重写了虚拟 DOM，速度更快了
+- 新的组件：`Fragment`（片段），`Teleport`（瞬移），`Suspense`（不确定，异步）
+- 设计了一个新的脚手架工具，vite
