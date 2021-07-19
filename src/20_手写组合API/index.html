@@ -1,0 +1,50 @@
+<!--
+ * @Author: lu
+ * @Date: 2021-07-19 14:40:50
+ * @LastEditTime: 2021-07-19 15:45:38
+ * @FilePath: \vue3-TypeScript\src\20_手写组合API\index.html
+ * @Description: 
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>手写组合API</title>
+  </head>
+  <body>
+    <script src="./index.js"></script>
+    <script>
+      const proxyUser1 = shallowReactive({
+        name: "小明",
+        car: {
+          color: "red"
+        }
+      });
+      //   拦截到了读和写的数据
+      proxyUser1.name += "==";
+      //   拦截到了读取数据，但是拦截不到写的数据
+      proxyUser1.car.color += "00";
+      // 拦截到了删除数据
+      delete proxyUser1.name;
+      // 值拦截到了读，但是拦截不到删除
+      delete proxyUser1.car.color;
+
+      const proxyUser2 = reactive({
+        name: "小明",
+        car: {
+          color: "red"
+        }
+      });
+      //   拦截到了读和写的数据
+      proxyUser2.name += "==";
+      //   拦截到了读取和修改的数据
+      proxyUser2.car.color += "00";
+      // 拦截到了删除数据
+      delete proxyUser2.name;
+      // 值拦截到了读和拦截到了删除
+      delete proxyUser2.car.color;
+    </script>
+  </body>
+</html>
