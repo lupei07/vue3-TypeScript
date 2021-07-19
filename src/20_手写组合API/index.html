@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-19 14:40:50
- * @LastEditTime: 2021-07-19 15:45:38
+ * @LastEditTime: 2021-07-19 17:06:50
  * @FilePath: \vue3-TypeScript\src\20_手写组合API\index.html
  * @Description: 
 -->
@@ -22,14 +22,14 @@
           color: "red"
         }
       });
-      //   拦截到了读和写的数据
-      proxyUser1.name += "==";
-      //   拦截到了读取数据，但是拦截不到写的数据
-      proxyUser1.car.color += "00";
-      // 拦截到了删除数据
-      delete proxyUser1.name;
-      // 值拦截到了读，但是拦截不到删除
-      delete proxyUser1.car.color;
+      //   //   拦截到了读和写的数据
+      //   proxyUser1.name += "==";
+      //   //   拦截到了读取数据，但是拦截不到写的数据
+      //   proxyUser1.car.color += "00";
+      //   // 拦截到了删除数据
+      //   delete proxyUser1.name;
+      //   // 值拦截到了读，但是拦截不到删除
+      //   delete proxyUser1.car.color;
 
       const proxyUser2 = reactive({
         name: "小明",
@@ -37,14 +37,59 @@
           color: "red"
         }
       });
-      //   拦截到了读和写的数据
-      proxyUser2.name += "==";
-      //   拦截到了读取和修改的数据
-      proxyUser2.car.color += "00";
-      // 拦截到了删除数据
-      delete proxyUser2.name;
-      // 值拦截到了读和拦截到了删除
-      delete proxyUser2.car.color;
+      //   //   拦截到了读和写的数据
+      //   proxyUser2.name += "==";
+      //   //   拦截到了读取和修改的数据
+      //   proxyUser2.car.color += "00";
+      //   // 拦截到了删除数据
+      //   delete proxyUser2.name;
+      //   // 值拦截到了读和拦截到了删除
+      //   delete proxyUser2.car.color;
+
+      //   ===============================================
+
+      const proxyUser3 = shallowReadonly({
+        name: "小明",
+        cars: ["奔驰", "宝马"]
+      });
+      console.log(proxyUser3.name); // 可以读取
+      //   proxyUser3.name += "ll"; // 不能修改
+      delete proxyUser3.name; // 不能删除
+      proxyUser3.cars[0] = "卡宴"; // 只读的，但是拦截不了深度的修改
+
+      const proxyUser4 = readonly({
+        name: "小明",
+        cars: ["奔驰", "宝马"]
+      });
+      proxyUser4.name;
+      proxyUser4.cars[0];
+      proxyUser4.name = "小花";
+
+      console.log("===============================================");
+      const ref1 = shallowRef({
+        name: "小明",
+        car: {
+          color: "red"
+        }
+      });
+      //   console.log(ref1.value); // 劫持了读取数据
+      //   console.log((ref1.value = "kkk")); // 劫持到了修改数据，准备更新界面 kkk
+      ref1.value.car = "ddd"; // 劫持了读取数据 没有更新数据
+
+      const ref2 = ref({
+        name: "小明",
+        car: {
+          color: "red"
+        }
+      });
+      console.log(ref2.value); // 劫持了读取数据
+      ref2.value.car = "ddd"; // 拦截了修改数据或者是添加数据 car ddd
+
+      console.log("===============================================");
+      console.log(isRef(ref({ name: "kkk" })));
+      console.log(isReactive(reactive({})));
+      console.log(isReadonly(readonly({})));
+      console.log(isProxy(reactive({})));
     </script>
   </body>
 </html>
