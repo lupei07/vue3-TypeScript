@@ -1,8 +1,8 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-16 19:09:19
- * @FilePath: \vue3-typescript\README.md
+ * @LastEditTime: 2021-07-19 13:49:15
+ * @FilePath: \vue3-TypeScript\README.md
  * @Description:
 -->
 
@@ -1020,4 +1020,125 @@
    });
    </script>
    <style scoped></style>
+   ```
+
+5. customRef
+
+   > `customRef` 用于自定义一个 `ref`，可以显示地控制依赖追踪和触发响应，接受一个工厂函数，两个参数别人使用是用于追踪的 `track` 与用于触发相应的 `trigger`，并返回一个带有 `get` 和 `set` 属性的对象。
+
+   - 使用自定义 ref 实现带防抖功能的 `v-model`：
+
+   ```ts
+   <template>
+    <h2>CustomRef的使用</h2>
+    <input type="text" v-model="keyword" />
+    <hr />
+    {{keyword}}
+    </template>
+    <script lang="ts">
+    import { defineComponent, ref, customRef } from "vue";
+    // 自定义 hook 防抖函数
+    // value 传入的数据,将来数据类型不确定,所以,用泛型,delay防抖的间隔时间,默认是200毫秒
+    function useDebounceRef<T>(value: T, delay = 200) {
+    // 准备一个存储定时器的id的变量
+    let timeOutId: number;
+    return customRef((trace, trigger) => {
+        return {
+        // 返回数据
+        get() {
+            // 告诉Vue追踪数据
+            trace();
+            return value;
+        },
+        // 设置数据
+        set(newValue: T) {
+            // 清除定时器
+            clearTimeout(timeOutId);
+            // 开启定时器
+            setTimeout(() => {
+            value = newValue;
+            // 告诉Vue更新界面
+            trigger();
+            }, delay);
+        }
+        };
+    });
+    }
+    export default defineComponent({
+    name: "App",
+    setup() {
+        // const keyword = ref("abc");
+        const keyword = useDebounceRef("abc", 2000);
+        return {
+        keyword
+        };
+    }
+    });
+   ```
+
+6. provide 与 inject
+   - `provide` 和 `inject` 提供依赖注入，功能类似 2.x 的 provide/inject
+   - 实现跨层级组件（祖孙）间通信
+   ```ts
+   <template>
+   <h2>provide 与 inject</h2>
+   <h3>父级组件</h3>
+   {{color}}
+   <hr />
+   <button @click="color='red'">红色</button>
+   <button @click="color='yellow'">黄色</button>
+   <button @click="color='green'">绿色</button>
+   <hr />
+   <Son />
+   </template>
+   <script lang="ts">
+   import { defineComponent, ref, provide } from "vue";
+   import Son from "./components/Son.vue";
+   export default defineComponent({
+   name: "App",
+   components: { Son },
+   setup() {
+       const color = ref("red");
+       provide("color", color);
+       return {
+       color
+       };
+   }
+   });
+   </script>
+   ```
+   ```ts
+   <template>
+    <h2>子组件</h2>
+    <hr />
+    <GrandSon />
+    </template>
+    <script lang="ts">
+    import { defineComponent } from "vue";
+    import GrandSon from "./GrandSon.vue";
+    export default defineComponent({
+    name: "Son",
+    components: { GrandSon },
+    setup() {
+        return {};
+    }
+    });
+    </script>
+   ```
+   ```ts
+   <template>
+    <h2 :style="{color}">孙子组件</h2>
+    </template>
+    <script lang="ts">
+    import { defineComponent, inject } from "vue";
+    export default defineComponent({
+    name: "GrandSon",
+    components: {},
+    setup() {
+        // 注入的操作
+        const color = inject("color");
+        return { color };
+    }
+    });
+    </script>
    ```
