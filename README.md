@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-19 13:49:15
+ * @LastEditTime: 2021-07-19 14:02:28
  * @FilePath: \vue3-TypeScript\README.md
  * @Description:
 -->
@@ -1141,4 +1141,39 @@
     }
     });
     </script>
+   ```
+
+7) 响应式数据的判断
+   - isRef：检测一个值是否为一个 `ref` 对象
+   - isReactive：检查一个对象是否是由 `reactive` 创建的响应式代理
+   - isReadonly：检查一个对象是否是由 `readonly` 创建的只读代理
+   - isProxy：检查一个对象是否是由 `reactive` 或者 `readonly` 方法创建的代理
+   ```ts
+   <template>
+       <h2>响应式数据的判断</h2>
+       </template>
+       <script lang="ts">
+       import {
+       defineComponent,
+       ref,
+       isRef,
+       isReactive,
+       reactive,
+       isReadonly,
+       readonly,
+       isProxy
+       } from "vue";
+       export default defineComponent({
+       name: "App",
+       components: {},
+       setup() {
+           console.log(isRef(ref({}))); // true
+           console.log(isReactive(reactive({}))); // true
+           console.log(isReadonly(readonly({}))); // true
+           console.log(isProxy(reactive({}))); // true
+           console.log(isProxy(readonly({}))); // true
+           return {};
+       }
+       });
+       </script>
    ```
