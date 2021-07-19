@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-19 17:09:00
+ * @LastEditTime: 2021-07-19 17:54:17
  * @FilePath: \vue3-TypeScript\README.md
  * @Description:
 -->
@@ -1332,4 +1332,167 @@ function isReadonly(obj) {
 function isProxy(obj) {
   return isReactive(obj) || isReadonly(obj);
 }
+```
+
+## 新组件
+
+1. Fragment（片断）
+
+   - 在 vue2 中：组件必须有一个根标签
+   - 在 Vue3 中：组件可以没有根标签，内部会将多个标签包含在一个 Fragmeng 虚拟标签中
+   - 好处：减少标签层级，减少内存占用
+
+   ```ts
+   <template>
+       <h2>aaaa</h2>
+       <h2>bbb</h2>
+   </templage>
+   ```
+
+2. Teleport（瞬移）
+
+   - `Teleport` 提供了一种干净的方法，让组件的 `html` 在父组件界面的特定标签（很可能是 body）下插入 `ModalButton.vue`
+
+   ```ts
+   <template>
+   <button @click="modalOpen = true">
+       Open full screen modal! (With teleport!)
+   </button>
+
+   <teleport to="body">
+       <div v-if="modalOpen" class="modal">
+       <div>
+           I'm a teleported modal!
+           (My parent is "body")
+           <button @click="modalOpen = false">
+           Close
+           </button>
+       </div>
+       </div>
+   </teleport>
+   </template>
+
+   <script>
+   import { ref } from 'vue'
+   export default {
+   name: 'modal-button',
+   setup () {
+       const modalOpen = ref(false)
+       return {
+       modalOpen
+       }
+   }
+   }
+   </script>
+   ```
+
+   ```ts
+   <template>
+    <h2>App</h2>
+    <modal-button></modal-button>
+    </template>
+
+    <script lang="ts">
+    import ModalButton from './ModalButton.vue'
+
+    export default {
+    setup() {
+        return {
+        }
+    },
+
+    components: {
+        ModalButton
+    }
+    }
+    </script>
+   ```
+
+3. Suspense（不确定）
+   - 它们允许我们的应用程序在等待异步组件时渲染一些后备内容，可以让我们创建一个平滑的用户体验
+
+```ts
+<template>
+  <Suspense>
+    <template v-slot:default>
+    // <template #default>
+      <AsyncComp/>
+      <!-- <AsyncAddress/> -->
+    </template>
+
+    <template v-slot:fallback>
+      <h1>LOADING...</h1>
+    </template>
+  </Suspense>
+</template>
+
+<script lang="ts">
+/*
+异步组件 + Suspense组件
+*/
+// import AsyncComp from './AsyncComp.vue'
+import AsyncAddress from './AsyncAddress.vue'
+import { defineAsyncComponent } from 'vue'
+const AsyncComp = defineAsyncComponent(() => import('./AsyncComp.vue'))
+export default {
+  setup() {
+    return {
+
+    }
+  },
+
+  components: {
+    AsyncComp,
+    AsyncAddress
+  }
+}
+</script>
+```
+
+- AsyncComp.vue
+
+```ts
+<template>
+  <h2>AsyncComp22</h2>
+  <p>{{msg}}</p>
+</template>
+
+<script lang="ts">
+
+export default {
+  name: 'AsyncComp',
+  setup () {
+    // return new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     resolve({
+    //       msg: 'abc'
+    //     })
+    //   }, 2000)
+    // })
+    return {
+      msg: 'abc'
+    }
+  }
+}
+</script>
+```
+
+- AsyncAddress.vue
+
+```ts
+<template>
+<h2>{{data}}</h2>
+</template>
+
+<script lang="ts">
+import axios from 'axios'
+export default {
+  async setup() {
+    const result = await axios.get('/data/address.json')
+    return {
+      data: result.data
+    }
+  }
+}
+</script>
 ```
