@@ -931,9 +931,59 @@
    ```
 
 4. toRef
+
    - 为源响应式对象上的某个属性创建一个 ref 对象，二者内部操作的是同一个数据值，更新时两者是同步的
    - 区别 ref：拷贝了一份新的数据值单独操作，更新时互相不影响
    - 应用：当要将某个 prop 的 ref 传递给复合函数时， toRef 特别有用
+
+   ```ts
+   <template>
+   <h2>toRef的使用和特点</h2>
+   <h3>state:{{ state }}</h3>
+   <h3>age:{{ age }}</h3>
+   <h3>money:{{ money }}</h3>
+   <hr />
+   <button @click="update">更新数据</button>
+   <hr />
+   <Child :age="age" :money="money" />
+   </template>
+   <script lang="ts">
+   import { defineComponent, reactive, toRef, ref } from "vue";
+   import Child from "./components/Child.vue";
+   export default defineComponent({
+   name: "App",
+   components: { Child },
+   setup() {
+       const state = reactive({
+       age: 5,
+       money: 100
+       });
+       // 把响应式数据state对象中的某个属性age变成了ref对象
+       const age = toRef(state, "age");
+
+       // 把响应式对象中的某个属性使用ref进行包装，变成了一个ref对象
+       const money = ref(state.money);
+
+       // 更新数据
+       const update = () => {
+       state.age += 2; // state,age 两个都改变
+       // age.value += 3; // state,age 两个都改变
+
+       // state.money = +100; // 没作用
+       money.value += 200; // state数据不变 money 变化
+       };
+
+       return {
+       state,
+       age,
+       money,
+       update
+       };
+   }
+   });
+   </script>
+   ```
+
    ```ts
    <template>
    <h2>Child子级组件</h2>
