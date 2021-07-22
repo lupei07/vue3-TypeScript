@@ -1,16 +1,16 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-14 17:08:58
- * @LastEditTime: 2021-07-19 19:48:55
+ * @LastEditTime: 2021-07-20 10:48:34
  * @FilePath: \vue3-TypeScript\README.md
  * @Description:
 -->
 
 # vue3-typescript
 
-> [vue3 文档](https://vue3js.cn/docs/zh/guide/migration/introduction.html)
+> [vue3 中文文档](https://vue3js.cn/docs/zh/guide/migration/introduction.html)
 
-> [笔记](https://24kcs.github.io/vue3_study/)
+> [课程笔记](https://24kcs.github.io/vue3_study/)
 
 ## 创建 vue3 项目
 
@@ -28,7 +28,7 @@
 
 ## Composition API（常用部分）
 
-> [Composition API](https://v3.cn.vuejs.org/guide/composition-api-introduction.html#setup-%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9)
+> [Composition-API 手册](https://v3.cn.vuejs.org/guide/composition-api-introduction.html#setup-%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9)
 
 1. setup
 
@@ -506,113 +506,114 @@
    - hooks/useRequest
 
    ```ts
-   import axios from 'axios'
-   import { ref } from 'vue'
+   import axios from "axios";
+   import { ref } from "vue";
 
    export default function useUrlLoader<T>(url: string) {
-       // cosnt data = ref(null) // 坑
-       const data = ref<T | null>(null); // 可能是数组也可能是对象
-       const loading = ref(true);
-       const errorMsg = ref(null);
+     // cosnt data = ref(null) // 坑
+     const data = ref<T | null>(null); // 可能是数组也可能是对象
+     const loading = ref(true);
+     const errorMsg = ref(null);
 
-       axios.get(url).then((response) => {
-           loading.value = false;
-           data.value = response.data
-       }).catch(e => {
-           loading.value = false;
-           errorMsg.value = e.message || '未知错误'
-
+     axios
+       .get(url)
+       .then(response => {
+         loading.value = false;
+         data.value = response.data;
        })
+       .catch(e => {
+         loading.value = false;
+         errorMsg.value = e.message || "未知错误";
+       });
+
+     return {
+       data,
+       loading,
+       errorMsg
+     };
+   }
    ```
 
+   ```ts
+   <template>
+   <h2>收集用户鼠标点击的页面坐标</h2>
+   <h3>x:{{x}} y:{{y}}</h3>
+   <hr />
+   <h3 v-if="loading">加载中。。。</h3>
+   <h3 v-else-if="errorMsg">错误信息：{{errorMsg}}</h3>
+   <ul v-else>
+       <li>{{data.name}}</li>
+       <li>{{data.address}}</li>
+       <li>{{data.age}}</li>
+   </ul>
+   <hr />
+   <ul v-for="item in data" :key="item.id">
+       <li>{{item.id}}</li>
+       <li>{{item.title}}</li>
+       <li>{{item.price}}</li>
+   </ul>
+   </template>
+   <script lang="ts">
+   import { defineComponent, watch } from "vue";
+   import useMousePosition from "./hooks/useMousePosition";
+   import useRequest from "./hooks/useRequest";
 
-        return {
-            data,
-            loading,
-            errorMsg
-        }
-    }
-    ```
-    ```ts
-    <template>
-    <h2>收集用户鼠标点击的页面坐标</h2>
-    <h3>x:{{x}} y:{{y}}</h3>
-    <hr />
-    <h3 v-if="loading">加载中。。。</h3>
-    <h3 v-else-if="errorMsg">错误信息：{{errorMsg}}</h3>
-    <ul v-else>
-        <li>{{data.name}}</li>
-        <li>{{data.address}}</li>
-        <li>{{data.age}}</li>
-    </ul>
-    <hr />
-    <ul v-for="item in data" :key="item.id">
-        <li>{{item.id}}</li>
-        <li>{{item.title}}</li>
-        <li>{{item.price}}</li>
-    </ul>
-    </template>
-    <script lang="ts">
-    import { defineComponent, watch } from "vue";
-    import useMousePosition from "./hooks/useMousePosition";
-    import useRequest from "./hooks/useRequest";
+   // 定义接口，约束对象的类型
+   interface IAddressData {
+   name: string;
+   address: string;
+   age: number;
+   }
+   interface IProductsData {
+   id: number;
+   title: string;
+   price: number;
+   }
 
-    // 定义接口，约束对象的类型
-    interface IAddressData {
-    name: string;
-    address: string;
-    age: number;
-    }
-    interface IProductsData {
-    id: number;
-    title: string;
-    price: number;
-    }
+   export default defineComponent({
+   name: "App",
+   components: {},
+   setup() {
+       const { x, y } = useMousePosition();
+       // const x = ref(-1);
+       // const y = ref(-1);
 
-    export default defineComponent({
-    name: "App",
-    components: {},
-    setup() {
-        const { x, y } = useMousePosition();
-        // const x = ref(-1);
-        // const y = ref(-1);
+       // // 点击事件的回调函数
+       // const clickHandler = (event: MouseEvent) => {
+       //   x.value = event.pageX;
+       //   y.value = event.pageY;
+       // };
 
-        // // 点击事件的回调函数
-        // const clickHandler = (event: MouseEvent) => {
-        //   x.value = event.pageX;
-        //   y.value = event.pageY;
-        // };
+       // // 页面已经加载完毕了，再进行点击的操作
+       // onMounted(() => {
+       //   window.addEventListener("click", clickHandler);
+       // });
+       // // 页面卸载之前的生命周期组合API
+       // onBeforeUnmount(() => {
+       //   window.removeEventListener("click", clickHandler);
+       // });
 
-        // // 页面已经加载完毕了，再进行点击的操作
-        // onMounted(() => {
-        //   window.addEventListener("click", clickHandler);
-        // });
-        // // 页面卸载之前的生命周期组合API
-        // onBeforeUnmount(() => {
-        //   window.removeEventListener("click", clickHandler);
-        // });
+       // const { loading, errorMsg, data } = useRequest<IAddressData>("/data/address.json"); // 对象
+       const { loading, errorMsg, data } = useRequest<IProductsData[]>(
+       "/data/products.json"
+       ); // 数组
 
-        // const { loading, errorMsg, data } = useRequest<IAddressData>("/data/address.json"); // 对象
-        const { loading, errorMsg, data } = useRequest<IProductsData[]>(
-        "/data/products.json"
-        ); // 数组
-
-        watch(data, () => {
-        if (data.value) {
-            console.log(data.value.length); // 如果没有泛型定义  飘红
-        }
-        });
-        return {
-        x,
-        y,
-        data,
-        loading,
-        errorMsg
-        };
-    }
-    });
-    </script>
-    ```
+       watch(data, () => {
+       if (data.value) {
+           console.log(data.value.length); // 如果没有泛型定义  飘红
+       }
+       });
+       return {
+       x,
+       y,
+       data,
+       loading,
+       errorMsg
+       };
+   }
+   });
+   </script>
+   ```
 
 10. toRefs
 
@@ -1496,6 +1497,9 @@ export default {
 }
 </script>
 ```
+
+## Vuex的基本使用
+`yarn add vuex@next --save`
 
 ## 面试相关
 
