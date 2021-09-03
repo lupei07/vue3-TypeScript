@@ -37,7 +37,6 @@ export default defineComponent({
     const fullName1 = computed(() => {
       return user.firstName + "_" + user.lastName;
     });
-
     // 有getter与setter的计算属性
     const fullName2 = computed({
       get() {
